@@ -1,0 +1,66 @@
+.This is a brief overview of how curses works.
+You wont see most of these functions being actually called, but theyre still being run.
+
+the first thing that happens is this:
+stdscr = curses.initscr()
+this is a function to make the screen that curses uses.
+to modify the properties of the windows, you can call the following functions.
+
+this will stop characters that are typed by the user from appearing on the screen:
+curses.noecho()
+
+this will let curses take the input of a user without pressing enter. for example, maybe you have wasd as movement, this lets you actually use them:
+curses.cbreak()    (this is short for character break)
+
+this will let curses take the input of special keys, such as the arrow and enter keys:
+stdscr.keypad(True)
+
+you'll want to undo these properties as well, or else your terminal will end not reset at the end:
+curses.echo()
+curses.nocbreak()
+stdscr.keypad(False)
+
+to end the curses screen and go back to defualt python, run this:
+curses.endwin()
+
+this would be to very impractical to individually initiallize and de-initiallize all this stuff, so curses has a handy thing called wrapper functions.
+wrapper functions automatically do all this stuff for you, as well as initiallizes colors.
+any function that gets passed stdscr becomes a wrapper function.
+
+def main(stdscr):
+
+when you call a wrapper, you call it like this
+curses.wrapper(main)
+
+when you call a curses wrapper from another wrapper, it stays wrapped so you can call it like a regular function that gets passed stdscr.
+also, when the function crashes unexpectedly, it will still de-initiallize everything, which is very helpful.
+
+now, in terms of outputs
+this is the main way curses displays strings. notice its in y, x form, thats how it was first written and its too late to change (apparently).
+also, something that is very important is that this will absolutely not print outside of the screen size. It will crash the program and return an error, I tried to avoid
+this happening as much as possible but that was not always feasable.
+stdscr.addstr(y, x, 'text')
+it wont display this text until you refresh the screen with this:
+stdscr.refresh()
+my guess as to why this is is becuase curses was written for very old computers, and this was a way to save ram
+
+addstr also has an optional 4th argument, the modifier for the text.
+this includes color, curses has 8 default colors. it does support making your own rgb values, although linux cant do this, which is why i never used it.
+also the text can chow up as bold, blinking, underlined, dim, and highlighted. these are the arguments for those, as well as being used in a function.
+A_BLINK, A_BOLD, A_DIM, A_REVERSE, A_STANDOUT, A_UNDERLINE
+stdscr.addstr(y, x, 'text', curses.A_BLINK)
+some of those speak for themselves, others i havent used so im not sure what they do.
+remember these are stored as integers, so the argument will always expect an int.
+
+
+now in terms of input, curses uses these functions.
+
+this works the same as input() in regular python, it returns a string. optionally echo() can be called to display the characters, and you specify the coordinates it will show up at:
+getch()
+
+this will convert all ints into strings, this is how you would get input from special keys (special keys output ints):
+getkey()
+the arrow key for example returns a long string that gets saved with a key name such as KEY_UP .
+
+thats about all the functions i used in the dungeon crawler, although I only scratched the surface of what curses can do.
+
